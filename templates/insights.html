@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Route Rush - AI Insights{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>AI Insights &amp; Recommendations</h1>
+    <p class="text-muted">
+        This page shows the full AI-generated narrative for the most recent
+        Route Rush plan. Adjust inputs or settings and regenerate the plan
+        to refresh these insights.
+    </p>
+
+    {% if ai and ai.enabled and ai.text %}
+        <div class="section-muted">
+            <p style="white-space: pre-wrap;">{{ ai.text }}</p>
+        </div>
+        <div class="form-actions" style="margin-top: 12px;">
+            <a href="{{ url_for('results') }}" class="btn btn-secondary">Back to Results</a>
+            <a href="{{ url_for('settings') }}" class="btn btn-outline">Review AI Settings</a>
+        </div>
+    {% else %}
+        <p class="text-muted">
+            AI insights are not currently available. You may need to enable
+            insights and configure a valid Hugging Face token on the
+            Settings page, then generate a new plan.
+        </p>
+        <div class="form-actions" style="margin-top: 12px;">
+            <a href="{{ url_for('settings') }}" class="btn btn-secondary">Go to Settings</a>
+            <a href="{{ url_for('results') }}" class="btn btn-outline">Back to Results</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

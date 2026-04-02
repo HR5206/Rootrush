@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Route Rush - Placeholder{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Placeholder Page</h1>
+    <p class="text-muted">
+        This is a temporary placeholder template. If you see this page,
+        it usually means a route is still pointing at <code>placeholder.html</code>
+        instead of the final template.
+    </p>
+    <div class="form-actions" style="margin-top: 12px;">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</section>
+{% endblock %}

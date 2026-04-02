@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Route Rush{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="{{ url_for('home') }}" class="sidebar-logo" title="Route Rush">RR</a>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('inputs') }}" class="sidebar-link" title="Inputs">📋</a>
+            <a href="{{ url_for('generate') }}" class="sidebar-link" title="Generate">⚡</a>
+            <a href="{{ url_for('results') }}" class="sidebar-link" title="Results">📊</a>
+            <a href="{{ url_for('settings') }}" class="sidebar-link" title="Settings">⚙️</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="page-wrapper">
+        <main class="page-main container">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p class="text-muted" style="margin: 0;">Route Rush • Modular Cabin Logistics Optimizer</p>
+        </div>
+    </footer>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

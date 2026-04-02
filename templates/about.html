@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}About the Route Rush Challenge{% endblock %}
+
+{% block content %}
+<section class="card problem-statement">
+    <h1>Route Rush Problem Statement</h1>
+
+    <p>Design and develop an application that optimizes the delivery and installation of modular cabins across multiple project locations in India.</p>
+
+    <p>Each project location requires one cabin, and cabins are manufactured at three different factories. The goal is to plan the logistics in such a way that deliveries and installations happen efficiently, with minimal delays and inventory buildup.</p>
+
+    <h2>Scenario</h2>
+    <p>You are given:</p>
+    <ul>
+        <li>Up to 600 project locations (user input via map or manual entry)</li>
+        <li>3 factory locations</li>
+        <li>Each location requires 1 cabin</li>
+    </ul>
+
+    <h2>Delivery Constraints</h2>
+    <ul>
+        <li>Each truck carries exactly 3 cabins per trip</li>
+        <li>Each trip must deliver to 3 different locations</li>
+        <li>Truck route format: Factory 
+            &rarr; Location 1 
+            &rarr; Location 2 
+            &rarr; Location 3
+        </li>
+        <li>Truck speed is 40 km/h</li>
+        <li>Trucks are assumed to be unlimited and can make multiple trips if required</li>
+    </ul>
+
+    <h2>Factory Constraints</h2>
+    <ul>
+        <li>Each factory produces X cabins per week (user-defined input)</li>
+        <li>Each factory can store a maximum of 6 cabins at any time</li>
+    </ul>
+
+    <h2>Installation Constraints</h2>
+    <ul>
+        <li>Each cabin takes 4 hours to install</li>
+        <li>Installation begins immediately after delivery</li>
+        <li>Multiple installations can occur in parallel across locations</li>
+    </ul>
+
+    <h2>Inventory Definition</h2>
+    <p>Inventory includes:</p>
+    <ul>
+        <li>Cabins waiting at the factory</li>
+        <li>Cabins delivered to a site but not yet installed</li>
+    </ul>
+
+    <h2>Requirements</h2>
+    <p>Your application should allow users to:</p>
+    <ul>
+        <li>Input: Project locations, Factory locations, Weekly production rate per factory</li>
+        <li>Generate: Grouping of locations into batches of 3, Assignment of each batch to a factory, Optimized delivery routes for each truck, Delivery and installation schedules</li>
+    </ul>
+
+    <h2>Objectives</h2>
+    <p>Your solution must aim to:</p>
+    <ul>
+        <li>Minimize the maximum waiting time (Time between delivery and installation of any cabin)</li>
+        <li>Minimize total inventory (Across factories and project sites)</li>
+        <li>Ensure the project is completed as early as possible</li>
+        <li>Efficient clustering logic</li>
+    </ul>
+
+    <h2>Expected Outcome</h2>
+    <p>The final output should include:</p>
+    <ul>
+        <li>Optimized truck routes</li>
+        <li>Delivery plan</li>
+        <li>Installation schedule</li>
+        <li>Visualization using maps or timelines</li>
+    </ul>
+
+    <h2>Hugging Face AI Integration (MANDATORY for Innovation points)</h2>
+    <p>Use google/flan-t5-small via Hugging Face Inference API (huggingface_hub.InferenceClient).</p>
+    <ul>
+        <li>After plan generation, the model must create a natural-language 
+            
+            &ldquo;AI Insights &amp; Recommendations&rdquo; section: why batches/routes were chosen, 1-2 alternative clustering ideas, potential bottlenecks.
+        </li>
+        <li>User enters their own free Hugging Face API token (Settings page).</li>
+        <li>Toggle 
+            &ldquo;Enable AI Insights&rdquo; (default: on).
+        </li>
+        <li>Only Inference API 
+            &ndash; no local model download.
+        </li>
+        <li>You will give exact integration guidance (pip install, code, security) in the relevant parts while in Agent Mode.</li>
+    </ul>
+
+    <h2>UI Design &amp; CSS Specification (must be pixel-accurate to the original PDF style)</h2>
+    <ul>
+        <li>Top-right corner: 
+            &ldquo;MODULUS HOUSING&rdquo; logo (use simple blue text + SVG mountain icon if needed).
+        </li>
+        <li>Overall style: clean white background (#ffffff), very light gray sections, thin blue horizontal dividers (#003087).</li>
+        <li>Primary accent color: deep blue (#003087).</li>
+        <li>Font: system-ui, -apple-system, Arial, sans-serif.</li>
+        <li>Headings: bold, 24–28px, dark blue or black.</li>
+        <li>Body text: 16px, dark gray (#333).</li>
+        <li>Bullet points and lists: standard left-aligned with blue bullet.</li>
+        <li>Tables: clean borders, light gray header row, alternating row colors very subtle.</li>
+        <li>Buttons: blue background, white text, rounded corners (6px), hover effect darker blue.</li>
+        <li>Cards/sections: subtle shadow (0 2px 8px rgba(0,0,0,0.08)), rounded 8px, white background.</li>
+        <li>Navbar: simple top bar, white background, blue links, right-aligned logo.</li>
+        <li>All pages fully responsive (mobile-first).</li>
+        <li>Plain CSS only 
+            &ndash; everything in static/css/style.css. No Bootstrap/Tailwind.
+        </li>
+        <li>Map page uses Leaflet.js (CDN) with the same clean style.</li>
+    </ul>
+
+    <h2>Home Page Requirement</h2>
+    <p>Home Page Requirement: Clean landing page only 
+        &ndash; logo, big title 
+        &ldquo;Route Rush&rdquo;, short tagline 
+        &ldquo;Optimize Modular Cabin Delivery &amp; Installation Across India&rdquo;, three big buttons (Start Inputs 
+        &rarr; Generate Plan 
+        &rarr; View Results), and a small 
+        &ldquo;About the Challenge&rdquo; link that opens a separate modal or page with the full problem statement above. Do NOT display the entire problem statement on the home page.
+    </p>
+
+    <h2>Development Rules</h2>
+    <ul>
+        <li>Generate code in exactly 15 sequential parts.</li>
+        <li>Use in-memory session storage + simple dicts (or SQLite if needed later).</li>
+        <li>Implement haversine distance, greedy nearest-factory clustering, brute-force 3-location route ordering, and full time-based simulation.</li>
+        <li>Default test coordinates around Salem, Tamil Nadu, India.</li>
+        <li>Mostly let the user 
+            &ldquo;vibe code&rdquo;; give assistance only when Hugging Face or complex logic is needed.
+        </li>
+        <li>The user already has a basic Flask boilerplate in VSCode (app.py, templates/, static/css/, static/js/).</li>
+    </ul>
+
+    <h2>Exact 15-Part Breakdown (follow strictly)</h2>
+    <ol>
+        <li>Base Flask structure + clean Home landing page (no full problem statement) + basic navbar.</li>
+        <li>Complete style.css 
+            &ndash; all global styles exactly matching the design described above.
+        </li>
+        <li>Inputs page 
+            &ndash; Factory section (3 factories with name, lat, lng, weekly X rate).
+        </li>
+        <li>Project locations input 
+            &ndash; dynamic add form, table list (delete), CSV upload.</li>
+        <li>Interactive Leaflet map on Inputs page (click to add/edit factories &amp; locations).</li>
+        <li>Backend data layer (session-based storage).</li>
+        <li>Clustering logic 
+            &ndash; assign to nearest factory + group into exact batches of 3.</li>
+        <li>Route optimization 
+            &ndash; best order for each batch of 3.</li>
+        <li>Scheduling &amp; inventory simulation (production, delivery times, 4h install, inventory tracking).</li>
+        <li>Objective calculations (max wait time, total inventory, completion time).</li>
+        <li>Hugging Face Integration Part 1 
+            &ndash; Settings page for API token + helper function get_ai_insights().</li>
+        <li>
+            &ldquo;Generate Plan&rdquo; endpoint + full results storage (with optional AI call).
+        </li>
+        <li>Results page 
+            &ndash; batches, routes, delivery plan + AI Insights panel.</li>
+        <li>Installation schedule + performance stats + map visualization with colored routes.</li>
+        <li>Final polish: Chart.js Gantt timeline, download options, full AI Insights page, error handling, footer with contact &amp; evaluation table, responsiveness, testing notes.</li>
+    </ol>
+</section>
+{% endblock %}

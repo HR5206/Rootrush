@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Route Rush - Configuration{% endblock %}
+
+{% block extra_head %}
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    >
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+    ></script>
+{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 24px;">Configure Your Logistics Plan</h1>
+
+<!-- Quick Demo Banner -->
+<section class="card" style="background: linear-gradient(135deg, #FF9800 0%, #FF6F00 100%); color: white; margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="color: white; margin-top: 0;">⚡ Quick Demo Available</h2>
+            <p style="color: rgba(255,255,255,0.9); margin: 0;">
+                Try an instant demo with 600 optimized delivery sites across India to see Route Rush in action.
+            </p>
+        </div>
+        <a href="{{ url_for('demo') }}" class="btn btn-light" style="white-space: nowrap; margin: 0;">
+            🚀 Launch Demo
+        </a>
+    </div>
+</section>
+
+<!-- Factories Section -->
+<section class="card">
+    <h2>🏭 Factories (Production Centers)</h2>
+    <p class="text-muted">Set up your production facilities. Each factory produces cabin units weekly.</p>
+
+    <form method="post" novalidate>
+        <input type="hidden" name="action" value="save_factories">
+        
+        <div class="grid-3" style="margin-top: 16px;">
+            {% for factory in factories %}
+            <div class="section-muted">
+                <h3 style="margin-top: 0; color: var(--accent-primary);">{{ factory.name }}</h3>
+                
+                <div class="form-col">
+                    <label>Factory Name</label>
+                    <input
+                        type="text"
+                        name="factory_{{ loop.index0 }}_name"
+                        value="{{ factory.name }}"
+                        placeholder="e.g., Main Factory"
+                    >
+                </div>
+
+                <div class="form-col" style="margin-top: 12px;">
+                    <label>Latitude</label>
+                    <input
+                        type="number"
+                        step="0.0001"
+                        name="factory_{{ loop.index0 }}_lat"
+                        value="{{ factory.lat }}"
+                        placeholder="11.6643"
+                    >
+                    <small class="text-muted">Decimal degrees</small>
+                </div>
+
+                <div class="form-col" style="margin-top: 12px;">
+                    <label>Longitude</label>
+                    <input
+                        type="number"
+                        step="0.0001"
+                        name="factory_{{ loop.index0 }}_lng"
+                        value="{{ factory.lng }}"
+                        placeholder="78.1460"
+                    >
+                    <small class="text-muted">Decimal degrees</small>
+                </div>
+
+                <div class="form-col" style="margin-top: 12px;">
+                    <label>Weekly Production</label>
+                    <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="factory_{{ loop.index0 }}_weekly"
+                        value="{{ factory.weekly_rate }}"
+                        placeholder="48"
+                    >
+                    <small class="text-muted">Cabins per week</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions" style="margin-top: 24px;">
+            <button type="submit" class="btn btn-primary">✓ Save Factories</button>
+        </div>
+    </form>
+</section>
+
+<!-- Locations Section -->
+<section class="card" style="margin-top: 24px;">
+    <h2>📍 Project Locations (Delivery Sites)</h2>
+    <p class="text-muted">Add the locations where cabins need to be installed. You can enter them manually or upload a CSV file.</p>
+
+    <div class="grid-2" style="margin-top: 16px; gap: 24px;">
+        <!-- Manual Entry -->
+        <div>
+            <h3 style="margin-top: 0;">Manual Entry</h3>
+            <form method="post" novalidate>
+                <input type="hidden" name="action" value="save_locations">
+                
+                <table style="margin-bottom: 16px;">
+                    <thead>
+                    <tr>
+                        <th>Site Name</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="locations-tbody">
+                    {% for loc in locations %}
+                        <tr>
+                            <td><input type="text" name="location_name" value="{{ loc.name }}" placeholder="Site name"></td>
+                            <td><input type="number" step="0.0001" name="location_lat" value="{{ loc.lat }}" placeholder="Lat"></td>
+                            <td><input type="number" step="0.0001" name="location_lng" value="{{ loc.lng }}" placeholder="Lng"></td>
+                            <td><button type="button" class="btn btn-outline location-delete" style="padding: 6px 12px; font-size: 0.85rem;">×</button></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="add-location-btn">+ Add Row</button>
+                    <button type="submit" class="btn btn-primary">✓ Save Locations</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- CSV Upload -->
+        <div>
+            <h3 style="margin-top: 0;">CSV Upload</h3>
+            <form method="post" enctype="multipart/form-data" class="stack-vertical">
+                <input type="hidden" name="action" value="upload_locations">
+                
+                <p class="text-muted">Upload a CSV file with columns: <strong>name, latitude, longitude</strong></p>
+                
+                <input 
+                    type="file" 
+                    id="locations_csv" 
+                    name="locations_csv" 
+                    accept=".csv"
+                    style="padding: 12px; border: 2px dashed var(--border-color); border-radius: 8px; cursor: pointer;"
+                >
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">⬆ Upload & Replace</button>
+                </div>
+                
+                <details style="margin-top: 12px;">
+                    <summary class="text-muted" style="cursor: pointer;">📥 Example CSV Format</summary>
+                    <pre style="background: var(--bg-darker); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">name,latitude,longitude
+Site A,11.65,78.14
+Site B,11.66,78.15
+Clinic,11.64,78.13</pre>
+                </details>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-muted" style="margin-top: 16px;">
+        Current: <strong>{{ locations | length }} locations</strong> configured
+    </p>
+</section>
+
+<!-- Map Section -->
+<section class="card map-card" style="margin-top: 24px;">
+    <div class="map-header">
+        <h2>🗺️ Map Interaction</h2>
+        <p class="text-muted">
+            🔵 Blue = Factories | 🟢 Green = Project Locations | Click on the map to add or move items
+        </p>
+
+        <fieldset style="border: none; padding: 12px; margin: 12px 0; background: var(--bg-darker); border-radius: 8px;">
+            <legend style="font-weight: 600; padding: 0; margin-bottom: 12px;">What should clicking the map do?</legend>
+            <div class="stack-vertical" style="margin-top: 8px;">
+                <label style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" class="map-mode-label">
+                    <input type="radio" name="map_factory_select" value="-1" checked style="margin: 0; width: 20px; height: 20px; cursor: pointer;">
+                    <div>
+                        <strong>➕ Add Locations</strong>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Click anywhere to add a project location to the table</div>
+                    </div>
+                </label>
+                {% for factory in factories %}
+                    <label style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" class="map-mode-label">
+                        <input type="radio" name="map_factory_select" value="{{ loop.index0 }}" style="margin: 0; width: 20px; height: 20px; cursor: pointer;">
+                        <div>
+                            <strong>📍 Move {{ factory.name }}</strong>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Click to reposition this factory on the map</div>
+                        </div>
+                    </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+        
+        <div id="map-mode-indicator" style="padding: 12px; background: var(--accent-green, #10b981); color: white; border-radius: 6px; margin-top: 12px; text-align: center; font-weight: 600; display: none;">
+            ➕ Click mode: Add Locations
+        </div>
+    </div>
+
+    <div class="map-container">
+        <div id="inputs-map" class="map-container-inner"></div>
+    </div>
+</section>
+
+<style>
+    .map-mode-label {
+        border: 2px solid transparent;
+        background: var(--bg-hover);
+    }
+
+    .map-mode-label input:checked ~ div,
+    input[name="map_factory_select"]:checked + div,
+    .map-mode-label input:checked + div {
+        color: var(--accent-primary);
+    }
+
+    .map-mode-label input:checked + div strong {
+        color: var(--accent-primary);
+    }
+
+    input[name="map_factory_select"]:checked + div,
+    .map-mode-label:has(input:checked) {
+        background: var(--bg-darker);
+        border-color: var(--accent-primary);
+    }
+</style>
+
+<script>
+    window.routeRushData = {
+        factories: {{ factories | tojson }},
+        locations: {{ locations | tojson }},
+        mapCenter: [
+            {{ factories[0].lat if factories|length > 0 else 11.6643 }},
+            {{ factories[0].lng if factories|length > 0 else 78.1460 }}
+        ],
+        zoom: 11
+    };
+</script>
+
+<script src="{{ url_for('static', filename='js/inputs.js') }}"></script>
+{% endblock %}

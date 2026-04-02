@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Route Rush - Dashboard{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Route Rush</h1>
+        <p class="hero-tagline">Optimize Modular Cabin Delivery & Installation Across India</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('inputs') }}" class="btn btn-primary">Start Configuration</a>
+            <a href="{{ url_for('demo') }}" class="btn btn-secondary">🎯 Try Demo (600 Deliveries)</a>
+            <a href="{{ url_for('results') }}" class="btn btn-outline">View Results</a>
+        </div>
+    </div>
+</section>
+
+<!-- Demo Section -->
+<section class="card" style="background: linear-gradient(135deg, var(--accent-primary, #003087) 0%, var(--accent-blue, #0066cc) 100%); color: white; margin-bottom: 24px;">
+    <h2 style="color: white; margin-top: 0;">🚀 Quick Demo</h2>
+    <p style="color: rgba(255,255,255,0.9); margin-bottom: 12px;">
+        See Route Rush in action! This demo instantly generates an optimized logistics plan for <strong>600 delivery sites across India</strong> with 5 strategically placed distribution hubs.
+    </p>
+    <div class="form-actions">
+        <a href="{{ url_for('demo') }}" class="btn btn-light">👉 Launch Demo</a>
+    </div>
+</section>
+
+<div class="grid-3">
+    <div class="card">
+        <h3>📋 Configure</h3>
+        <p>Set up your factories and project locations. Define production capacity and site coordinates for optimal routing.</p>
+        <a href="{{ url_for('inputs') }}" class="btn btn-secondary" style="width: 100%; text-align: center;">Go to Inputs</a>
+    </div>
+
+    <div class="card">
+        <h3>⚡ Generate</h3>
+        <p>Run the optimization engine to batch locations, optimize truck routes, and simulate delivery schedules.</p>
+        <a href="{{ url_for('generate') }}" class="btn btn-secondary" style="width: 100%; text-align: center;">Generate Now</a>
+    </div>
+
+    <div class="card">
+        <h3>📊 Analyze</h3>
+        <p>View results with KPIs, visualizations, maps, and AI-generated insights for your logistics plan.</p>
+        <a href="{{ url_for('results') }}" class="btn btn-secondary" style="width: 100%; text-align: center;">View Results</a>
+    </div>
+</div>
+{% endblock %}

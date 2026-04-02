@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Route Rush - Results{% endblock %}
+
+{% block extra_head %}
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    >
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+    ></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+        integrity="sha256-HVa0UsU0rZH4fyMf5XIqj3RyJ/v7e+4h2e3eQ1tgskY="
+        crossorigin="anonymous"
+    ></script>
+{% endblock %}
+
+{% block content %}
+{% if not plan %}
+    <section class="card">
+        <h1>📊 Results</h1>
+        <p>No plan has been generated yet. Let's create one!</p>
+        <div class="form-actions" style="margin-top: 12px;">
+            <a href="{{ url_for('generate') }}" class="btn btn-primary">Generate Plan Now</a>
+        </div>
+    </section>
+{% else %}
+    <h1 style="margin-bottom: 24px;">✓ Your Logistics Plan is Ready</h1>
+
+    {% if plan.locations | length > 400 %}
+    <div style="background: linear-gradient(135deg, #FF9800 0%, #FF6F00 100%); color: white; border-radius: 8px; padding: 16px; margin-bottom: 24px; border-left: 4px solid white;">
+        <strong>⚡ Large Dataset Detected</strong>
+        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 0.95rem;">
+            This plan contains {{ plan.locations | length }} delivery locations. The maps and route lists may take a moment to load. For the best experience, use a modern browser and ensure you have sufficient system memory.
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Key Metrics Overview -->
+    <div class="grid-3" style="margin-bottom: 24px;">
+        {% set obj = plan.objectives %}
+        <div class="card">
+            <div class="gauge-card">
+                <div class="gauge-label">⏱️ Total Time</div>
+                <div class="gauge-value">{{ '%.1f' % obj.completion_time_hours }}</div>
+                <div class="gauge-unit">hours to complete all sites</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="gauge-card">
+                <div class="gauge-label">🚚 Truck Trips</div>
+                <div class="gauge-value">{{ plan.batches | length }}</div>
+                <div class="gauge-unit">routes needed</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="gauge-card">
+                <div class="gauge-label">📍 Sites to Visit</div>
+                <div class="gauge-value">{{ plan.locations | length }}</div>
+                <div class="gauge-unit">project locations</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Visualization -->
+    <section class="card map-card" style="margin-bottom: 24px;">
+        <div class="map-header">
+            <h2>🗺️ Delivery Routes Map</h2>
+            <p class="text-muted">Each colored line is a different truck route from its factory to assigned locations.</p>
+        </div>
+        <div class="map-container">
+            <div id="results-map" class="map-container-inner"></div>
+        </div>
+    </section>
+
+    <!-- Installation Timeline -->
+    <section class="card" style="margin-bottom: 24px; height: 320px;">
+        <h2>📅 Installation Timeline</h2>
+        <p class="text-muted" style="margin-bottom: 16px;">When installations are scheduled at each factory.</p>
+        <div style="height: 200px;">
+            <canvas id="installation-timeline"></canvas>
+        </div>
+    </section>
+
+    <!-- Factory Performance -->
+    <section class="card" style="margin-bottom: 24px;">
+        <h2>🏭 Factory Performance</h2>
+        <p class="text-muted">How each factory contributes to the overall plan.</p>
+        
+        <table style="margin-top: 16px;">
+            <thead>
+            <tr>
+                <th>Factory</th>
+                <th>Trips</th>
+                <th>Distance</th>
+                <th>Completion Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% set schedule = plan.schedule %}
+            {% for factory_summary in schedule.factories %}
+                <tr>
+                    <td><strong>{{ factory_summary.factory.name }}</strong></td>
+                    <td>{{ factory_summary.trips | length }}</td>
+                    <td>{{ '%.0f' % (factory_summary.trips | sum(attribute='total_distance_km')) }} km</td>
+                    <td>{{ '%.1f' % factory_summary.factory_completion_time_hours }} h</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Delivery Routes Summary -->
+    <section class="card" style="margin-bottom: 24px;">
+        <h2>📦 Delivery Routes Overview</h2>
+        <p class="text-muted">Each route is one truck trip from a factory to its assigned sites.</p>
+        
+        <div style="margin-top: 16px; max-height: 400px; overflow-y: auto;">
+            {% for batch in plan.batches %}
+                <div style="padding: 12px; background: var(--bg-hover); border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--accent-primary);">
+                    <strong>Route {{ loop.index }} • {{ batch.factory.name }}</strong>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">
+                        {% set route_locs = batch.route_locations or batch.locations %}
+                        Visits: {% for loc in route_locs %}<span>{{ loc.name }}</span>{% if not loop.last %}<span> → </span>{% endif %}{% endfor %}
+                    </div>
+                    {% if batch.total_distance_km is defined %}
+                        <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Distance: {{ '%.1f' % batch.total_distance_km }} km</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if plan.remainders and plan.remainders | length > 0 %}
+            <div style="margin-top: 16px; padding: 12px; background: var(--bg-hover); border-radius: 8px; border-left: 4px solid var(--accent-orange);">
+                <strong>⚠️ {{ plan.remainders | length }} sites not in main routes</strong>
+                <div style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 8px;">
+                    {% for rem in plan.remainders %}
+                        <div>• {{ rem.location.name }} (nearest: {{ rem.factory.name }})</div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- AI Insights -->
+    <section class="card" style="margin-bottom: 24px;">
+        <h2>🤖 AI Insights & Recommendations</h2>
+        {% set ai = plan.ai_insights %}
+        {% if ai and ai.enabled and ai.text %}
+            <div style="background: var(--bg-darker); border-radius: 8px; padding: 16px; margin-top: 12px;">
+                <p style="white-space: pre-wrap; line-height: 1.6; margin: 0; font-size: 0.95rem;">{{ ai.text }}</p>
+            </div>
+            <div class="form-actions" style="margin-top: 12px;">
+                <a href="{{ url_for('insights') }}" class="btn btn-secondary">View Full Insights</a>
+            </div>
+        {% else %}
+            <p class="text-muted">AI insights not available. Configure your Hugging Face token in Settings to enable AI analysis.</p>
+        {% endif %}
+    </section>
+
+    <!-- Downloads -->
+    <section class="card">
+        <h2>💾 Export Your Plan</h2>
+        <p class="text-muted">Download the plan for offline review or external analysis.</p>
+        
+        <div class="form-actions" style="margin-top: 12px;">
+            <a href="{{ url_for('download_plan_json') }}" class="btn btn-secondary">📥 Download as JSON</a>
+            <a href="{{ url_for('download_plan_csv') }}" class="btn btn-secondary">📥 Download as CSV</a>
+            <a href="{{ url_for('inputs') }}" class="btn btn-secondary">⚙️ Customize</a>
+            <a href="{{ url_for('demo') }}" class="btn btn-outline">🎯 Try Another Demo</a>
+        </div>
+    </section>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+    {% if plan %}
+        <script>
+            window.routeRushPlan = {{ plan | tojson }};
+        </script>
+        <script src="{{ url_for('static', filename='js/results.js') }}"></script>
+    {% endif %}
+{% endblock %}
+
+
