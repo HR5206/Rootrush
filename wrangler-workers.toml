@@ -1,16 +1,39 @@
+# Alternative Wrangler configuration for Workers-only deployment
+# Use this if you prefer Workers service over Pages
+
 name = "rootrush-workers"
-main = "src/index.js"
+type = "service"
+main = "functions/[[path]].js"
 compatibility_date = "2024-04-01"
 workers_dev = true
 
-# Environment configuration
+# Assets configuration - for serving static files
+[assets]
+directory = "static"
+
+# Analytics
+[analytics]
+enabled = true
+
+# Observability
+[observability]
+enabled = true
+
+# Build configuration
+[build]
+command = "npm install"
+cwd = "./"
+
+# Development environment
 [env.development]
 name = "rootrush-dev"
 vars = { 
   ENVIRONMENT = "development",
-  LOG_LEVEL = "debug"
+  LOG_LEVEL = "debug",
+  BACKEND_URL = "http://localhost:5000"
 }
 
+# Staging environment
 [env.staging]
 name = "rootrush-staging"
 routes = [
@@ -22,6 +45,7 @@ vars = {
   BACKEND_URL = "https://staging-api.yourdomain.com"
 }
 
+# Production environment
 [env.production]
 name = "rootrush"
 routes = [
@@ -33,16 +57,3 @@ vars = {
   LOG_LEVEL = "error",
   BACKEND_URL = "https://api.yourdomain.com"
 }
-
-# Analytics
-[analytics]
-enabled = true
-
-# Build configuration
-[build]
-command = "npm install"
-cwd = "./"
-
-# Observability
-[observability]
-enabled = true

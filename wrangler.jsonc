@@ -1,0 +1,40 @@
+{
+  "name": "rootrush",
+  "type": "service",
+  "main": "functions/[[path]].js",
+  "compatibility_date": "2024-04-01",
+  "workers_dev": true,
+  "assets": {
+    "directory": "static"
+  },
+  "env": {
+    "development": {
+      "name": "rootrush-dev",
+      "vars": {
+        "ENVIRONMENT": "development",
+        "BACKEND_URL": "http://localhost:5000"
+      }
+    },
+    "staging": {
+      "name": "rootrush-staging",
+      "routes": [
+        { "pattern": "staging.yourdomain.com/*", "zone_name": "yourdomain.com" }
+      ],
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "BACKEND_URL": "https://staging-api.yourdomain.com"
+      }
+    },
+    "production": {
+      "name": "rootrush",
+      "routes": [
+        { "pattern": "yourdomain.com/*", "zone_name": "yourdomain.com" },
+        { "pattern": "www.yourdomain.com/*", "zone_name": "yourdomain.com" }
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+        "BACKEND_URL": "https://api.yourdomain.com"
+      }
+    }
+  }
+}
