@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_SECRET_KEY=dev-key
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    volumes:
+      - .:/app
+    command: flask run --host=0.0.0.0
+
+  # Optional: PostgreSQL database service
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_DB: rootrush
+  #     POSTGRES_USER: rootrush
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+# volumes:
+#   postgres_data:

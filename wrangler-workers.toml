@@ -1,0 +1,48 @@
+name = "rootrush-workers"
+main = "src/index.js"
+compatibility_date = "2024-04-01"
+workers_dev = true
+
+# Environment configuration
+[env.development]
+name = "rootrush-dev"
+vars = { 
+  ENVIRONMENT = "development",
+  LOG_LEVEL = "debug"
+}
+
+[env.staging]
+name = "rootrush-staging"
+routes = [
+  { pattern = "staging.yourdomain.com/*", zone_name = "yourdomain.com" }
+]
+vars = {
+  ENVIRONMENT = "staging",
+  LOG_LEVEL = "info",
+  BACKEND_URL = "https://staging-api.yourdomain.com"
+}
+
+[env.production]
+name = "rootrush"
+routes = [
+  { pattern = "yourdomain.com/*", zone_name = "yourdomain.com" },
+  { pattern = "www.yourdomain.com/*", zone_name = "yourdomain.com" }
+]
+vars = {
+  ENVIRONMENT = "production",
+  LOG_LEVEL = "error",
+  BACKEND_URL = "https://api.yourdomain.com"
+}
+
+# Analytics
+[analytics]
+enabled = true
+
+# Build configuration
+[build]
+command = "npm install"
+cwd = "./"
+
+# Observability
+[observability]
+enabled = true

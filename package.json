@@ -1,0 +1,21 @@
+{
+  "name": "rootrush-workers",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers deployment for Rootrush",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev --env development",
+    "staging": "wrangler deploy --env staging",
+    "deploy": "wrangler deploy --env production",
+    "logs": "wrangler tail --env production",
+    "logs:staging": "wrangler tail --env staging",
+    "status": "wrangler status",
+    "login": "wrangler login"
+  },
+  "keywords": ["cloudflare", "workers", "pages"],
+  "author": "HR5206",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
