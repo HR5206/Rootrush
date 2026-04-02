@@ -45,3 +45,6 @@ Thumbs.db
 # Cloudflare
 wrangler.toml
 .wrangler/
+
+# Node
+node_modules/
