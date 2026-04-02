@@ -1,14 +1,17 @@
 [build]
 command = "pip install -r requirements.txt"
-publish = "static"
+publish = "."
+functions = "netlify/functions"
 
 [build.environment]
 PYTHON_VERSION = "3.11"
 
 [functions]
 directory = "netlify/functions"
+included_files = ["templates/**", "static/**", "*.py"]
 
 [[redirects]]
 from = "/*"
 to = "/.netlify/functions/flask"
 status = 200
+force = true
